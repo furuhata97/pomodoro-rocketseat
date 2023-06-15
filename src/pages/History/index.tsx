@@ -1,7 +1,11 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { HistoryContainer, HistoryList, Status } from './styles'
+import { CyclesContext } from '../../contexts/CyclesContext'
+import { formatDistanceToNow } from 'date-fns'
+import ptBR from 'date-fns/locale/pt-BR'
 
 export function History() {
+  const { cycles } = useContext(CyclesContext)
   return (
     <HistoryContainer>
       <h1>Meu histórico</h1>
@@ -16,30 +20,33 @@ export function History() {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>Tarefa</td>
-              <td>20 minutos</td>
-              <td>Há 2 meses</td>
-              <td>
-                <Status colorStatus="green">Concluído</Status>
-              </td>
-            </tr>
-            <tr>
-              <td>Tarefa</td>
-              <td>20 minutos</td>
-              <td>Há 2 meses</td>
-              <td>
-                <Status colorStatus="red">Interrompido</Status>
-              </td>
-            </tr>
-            <tr>
-              <td>Tarefa</td>
-              <td>20 minutos</td>
-              <td>Há 2 meses</td>
-              <td>
-                <Status colorStatus="yellow">Em andamento</Status>
-              </td>
-            </tr>
+            {cycles.map((cycle) => {
+              return (
+                <tr key={cycle.id}>
+                  <td>{cycle.task}</td>
+                  <td>{cycle.minutesAmount} minutos</td>
+                  <td>
+                    {formatDistanceToNow(cycle.startDate, {
+                      addSuffix: true,
+                      locale: ptBR,
+                    })}
+                  </td>
+                  <td>
+                    {cycle.finishedDate && (
+                      <Status colorStatus="green">Concluído</Status>
+                    )}
+
+                    {cycle.interruptedDate && (
+                      <Status colorStatus="red">Interrompido</Status>
+                    )}
+
+                    {!cycle.interruptedDate && !cycle.finishedDate && (
+                      <Status colorStatus="yellow">Em andamento</Status>
+                    )}
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </HistoryList>
